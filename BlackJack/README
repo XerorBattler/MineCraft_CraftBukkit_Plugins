@@ -1,0 +1,44 @@
+BlackJack, stable version: 1.8, support for Bukkit[860]
+--------------------------------------------------------------
+BlackJack plugin for Bukkit (minecraft unofficial server software) allows you play Black Jack in the game
+BlackJack can cooperate with plugins iConomy v5 & Permissions v3
+--------------------------------------------------------------
+v1.8      
+      - Main config file fix
+      - Permissions(v3) support
+      - Possibility to play BlackJack without iConomy(v5)
+      - Color prefixes for cards
+v1.7      
+      - Code for split fix
+      - Config file fix
+      - Winning conditions fix
+      - iConomy v5 only support
+      - Custom odd on BlackJack combination (default 3:2)
+      - Rule: Dealer wins after player have more then 21
+v1.6
+      - You can now split same cards in second round to two hands
+      - New shortcommands system (/hit equals /bjack hit)
+      - Training game fix
+v1.59
+      - External config fix + new parameters
+      - Code optimalization
+      - ALPHA source code published
+      - New commands set
+v1.5
+      - After double player takes one more card and holds
+      - External config file for limiting bets 
+      - Security fix
+v1.4
+      - Blackjack rule "Dealer wins a tie" removed
+      - You can now double your bet in the first round
+v1.3
+      - PlayerQuit event fix (if player leave game with game in progress he lose his bet)
+      - One easter egg
+v1.2
+      - Credit add after win fix
+v1.1
+      - Win conditions fix
+      - Connected with iConomy
+      - Some protections...
+v1.0
+      - First release

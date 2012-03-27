@@ -1,0 +1,23 @@
+name: BlackJack
+main: BlackJack.BlackJack
+version: Experimental (build 1, core 1.8)
+author: Xeror Battler
+description: >
+             Simple blackjack game plugin
+
+commands:
+#    stay:
+#        description: Stands.
+#        usage:
+#    hit:
+#        description: Deal next card do player.
+#        usage:
+#    double:
+#        description: Doubles a bet.
+#        usage:
+#    split:
+#        description: Split same cards.
+#        usage:
+    bjack:
+        description: Shows blackjack info.
+        usage:
