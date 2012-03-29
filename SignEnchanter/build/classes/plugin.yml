@@ -1,0 +1,19 @@
+name: SignEnchanter
+main: net.XerorBattler.SignEnchanter.SignEnchanter
+version: 0.1-Alpha
+authors: [XerorBattler]
+description: >
+             Simple sign enchanting for iConomy money
+commands:
+  signench-help:
+    description: Shows help of SignEnchanter
+    usage: |
+           /<command> - Displays SignEnchanter information
+  signench-reload:
+    description: Reloads SignEnchanter
+    usage: |
+           /<command> - Reloads SignEnchanter
+permissions:
+  SignEnchanter.admin:
+    description: Allows admin to reload config
+    default: op
