@@ -2,18 +2,21 @@ package net.XerorBattler.SignEnchanter;
 
 import java.util.HashMap;
 import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 public class EnchantingSign
 {
-    private HashMap<Enchantment, Integer> enchants;
-    private int price;
+    private HashMap<Enchantment, Integer> enchants = new HashMap<>();
+    private int baseCost;
+    private Location location;
 
-    public EnchantingSign(int price)
+    public EnchantingSign(int baseCost, Location location)
     {
-        this.price = price;
-        this.enchants = new HashMap<>();       
+        this.baseCost = baseCost;
+        this.location = location;
     }
     
     public void AddEnchant(String enchantName, Integer level)
@@ -34,5 +37,8 @@ public class EnchantingSign
         item.addUnsafeEnchantments(this.enchants);
     }
     
-    
+    public Location getLocation()
+    {
+        return this.location;
+    }
 }
