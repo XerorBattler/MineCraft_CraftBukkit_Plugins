@@ -3,5 +3,13 @@ SignEnchanter, alpha version
 DEVELOPMENT IN PROGRESS
 --------------------------------------------------------------
 Changelog:
+Alpha2
+      * Functionality limited to right mouse button
+      * Max enchant level limits improved
+      * Enchanting system now allows only one enchant type per sign
+      * "getName" enum methods recoded
+      * Working with signs in memory is now more efficient								      
+			+ Added new enum structure, but it's still not used			     
+			+ After destroying sign, system will unregister sign from memory
 Alpha1
-      - Initial commit
+      + Basic core

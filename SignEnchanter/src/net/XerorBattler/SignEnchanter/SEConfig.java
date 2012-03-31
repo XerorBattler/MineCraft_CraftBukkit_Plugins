@@ -1,13 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.XerorBattler.SignEnchanter;
 
-/**
- *
- * @author Xeror
- */
 public class SEConfig {
     private static boolean debugMode = true;
     private static String signName = "[en]";

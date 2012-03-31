@@ -10,7 +10,7 @@ public final class SignEnchanter extends JavaPlugin{
 	private final Logger log = Logger.getLogger("Minecraft");
         private static SEListener listener;
         private static final SEConfig config = new SEConfig();
-        private ArrayList<EnchantingSign> signs;
+        private ArrayList<SESign> signs;
         
 	@Override
 	public void onDisable()
@@ -25,19 +25,38 @@ public final class SignEnchanter extends JavaPlugin{
                 pm.registerEvents(listener, this);
 	}
         
-        protected void AddSign(EnchantingSign sign)
+        protected int getSignCount()
+        {
+            return this.signs.size();
+        }
+        
+        protected void addSign(SESign sign)
         {
             signs.add(sign);
         }
         
-        protected EnchantingSign GetSign(Location location)
+        protected SESign getSign(Location location)
         {
             if(signs.isEmpty())return null;
-            for(EnchantingSign sign : signs)
+            for(SESign sign : signs)
             {
-                if(sign.getLocation() == location)return sign;
+                if(sign.getLocation().equals(location))return sign;
             }
             return null;
+        }
+        
+        protected boolean destroySign(Location location)
+        {
+            if(signs.isEmpty())return false;
+            for(SESign sign : signs)
+            {                
+                if(sign.getLocation().equals(location))
+                {
+                    signs.remove(sign);
+                    return true;
+                }
+            }
+            return false;
         }
         
 	protected void logInfo (String text, Boolean isDebug) {
@@ -56,6 +75,4 @@ public final class SignEnchanter extends JavaPlugin{
         {
             return config;
         }
-        
-
 }

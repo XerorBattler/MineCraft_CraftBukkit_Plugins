@@ -1,9 +1,11 @@
 package net.XerorBattler.SignEnchanter;
 
-import org.bukkit.Material;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -16,54 +18,91 @@ public class SEListener implements Listener {
 	}
         
         @EventHandler(priority = EventPriority.NORMAL)
+        public void onBlockDestroy(final BlockBreakEvent event)
+        {
+            if(signEnchanter.destroySign(event.getBlock().getLocation()) == false)return;
+            signEnchanter.logInfo("Sign unregistered, " + signEnchanter.getSignCount() + " registered sign(s) left", true);
+        }
+        
+        @EventHandler(priority = EventPriority.NORMAL)
         public void onBlockUse(final PlayerInteractEvent event)
         {
-            signEnchanter.logInfo("clicked block" + event.getClickedBlock().getType().name(), true);
-            if(!event.isBlockInHand())return;
+            if(!event.getAction().equals(Action.RIGHT_CLICK_BLOCK))return;
             if(event.getClickedBlock() != null && event.getClickedBlock().getTypeId() == 68)
             {
+                
                 if(event.getClickedBlock().getLocation() == null)return;
-                signEnchanter.logInfo("Sign used", true);
-                if(signEnchanter.GetSign(event.getClickedBlock().getLocation()) == null)return;
-                signEnchanter.logInfo("Registered sign used", true);
-                EnchantingSign sign = signEnchanter.GetSign(event.getClickedBlock().getLocation());
-                sign.EnchantItem(event.getPlayer().getItemInHand());
+                if(signEnchanter.getSign(event.getClickedBlock().getLocation()) == null)return;
+                signEnchanter.logInfo("Enchanting sign used by " + event.getPlayer().getName(), true);
+                SESign sign = signEnchanter.getSign(event.getClickedBlock().getLocation());
+                if(sign.EnchantItem(event.getPlayer()))
+                {
+                    event.getPlayer().sendMessage("Your item was enchanted!");
+                }
             }
         }
         
         @EventHandler(priority = EventPriority.NORMAL)
         public void onSignChangeEvent(final SignChangeEvent event)
         {
-            signEnchanter.logInfo(event.getLine(0), true);
-            signEnchanter.logInfo(event.getLine(1), true);
-            signEnchanter.logInfo(event.getLine(2), true);
-            signEnchanter.logInfo(event.getLine(3), true);
             String title = event.getLine(0);
+            String baseCostString = event.getLine(1);
+            String enchantName = event.getLine(2);
+            String maxLevelString = event.getLine(3);
+           
+            //DEBUG CODE! This obey any sign control
+            if(title.equals("debug") && signEnchanter.getSEConfig().getDebugMode())
+            {
+                SESign sign = new SESign(100, event.getBlock().getLocation());
+                sign.AddEnchant(SEEnchantsOld.getBukkitName("durability"), 5);
+                signEnchanter.addSign(sign);
+                signEnchanter.logInfo("Debug sign created.", Boolean.TRUE);
+                event.setLine(0, ChatColor.YELLOW + "SignEnchanter");
+                event.setLine(1, ChatColor.RED + "DEBUG MODE");
+                event.setLine(2, ChatColor.YELLOW + "durability");
+                event.setLine(3, ChatColor.YELLOW + "max lvl 4");
+                return;
+            }
+            //DEBUG CODE!
 
+            if(title.length() == 0 || baseCostString.length() == 0 || enchantName.length() == 0 || maxLevelString.length() == 0)return;
+
+            if(!title.equalsIgnoreCase(signEnchanter.getSEConfig().getSignTitle()))return;
+            
+//            if(!event.getPlayer().hasPermission("SignEnchanter.create"))
+//            {
+//                event.getPlayer().sendMessage(ChatColor.RED + "You don't have a permission to create signs.");
+//                return;
+//            }
+            
+            signEnchanter.logInfo(title, true);
+            signEnchanter.logInfo(baseCostString, true);
+            signEnchanter.logInfo(enchantName, true);
+            signEnchanter.logInfo(maxLevelString, true);
+            
             try
             {
-                int baseLevelCost = Integer.parseInt(event.getLine(1));
-                String enchant = event.getLine(2);
-                int maxLevel = Integer.parseInt(event.getLine(3));
+                int baseCost = Integer.parseInt(baseCostString);
+                int maxLevel = Integer.parseInt(maxLevelString);
+                enchantName = SEEnchantsOld.getBukkitName(enchantName);
+                if(enchantName == null)
+                {
+                    throw new IllegalArgumentException("Unknown enchant used.");
+                }
                 if(title.equals(signEnchanter.getSEConfig().getSignTitle()))
                 {
-                    if(baseLevelCost < signEnchanter.getSEConfig().getMinBaseCost())
+                    if(baseCost < signEnchanter.getSEConfig().getMinBaseCost())
                     {
                         throw new IllegalArgumentException("Base cost is lower then minimal possible value. (" 
                                 + signEnchanter.getSEConfig().getMinBaseCost() + ")");
                     }
-//                    if(!SEEnchantList.isMember(enchant))
-//                    {
-//                        throw new IllegalArgumentException("Unknown enchant used.");
-//                    }
-//                    enchant = SEEnchantList.valueOf(enchant).getName();
-                    enchant = "DURABILITY";
+                    signEnchanter.logInfo("Sign enchant: " + enchantName, Boolean.TRUE);
                     event.setLine(0, "&1"+signEnchanter.getSEConfig().getSignTitle());
-                    event.setLine(3, "LB->info | RB->buy");
+                    event.setLine(3, "LB:info RB:buy");
                     signEnchanter.logInfo("Enchanting sign created.", Boolean.TRUE);
-                    EnchantingSign sign = new EnchantingSign(baseLevelCost, event.getBlock().getLocation());
-                    sign.AddEnchant(enchant, maxLevel);
-                    signEnchanter.AddSign(sign);
+                    SESign sign = new SESign(baseCost, event.getBlock().getLocation());
+                    sign.AddEnchant(enchantName, maxLevel);
+                    signEnchanter.addSign(sign);
                     
                 }
             }
@@ -73,27 +112,6 @@ public class SEListener implements Listener {
             }
             
             
-//            Integer.parseInt(event.getLine(1));
-//            if(event.getLine(0).equalsIgnoreCase("[en]"))
-//            {
-//                if(Integer.parseInt(event.getLine(1)) > 0 && Integer.parseInt(event.getLine(3)) > 0)
-//                {
-//                    String[] enchantNames = event.getLine(2).split(";");
-//                    for(String enchantName : enchantNames)
-//                    {
-//                        if(enchantName.length() == 2)
-//                        {
-//                            if(enchantName.equals("DB"))
-//                            {
-//                                EnchantingSign sign = new EnchantingSign(Integer.parseInt(event.getLine(1)));
-//                                sign.AddEnchant("DURABILITY", Integer.parseInt(event.getLine(3)));
-//                                signEnchanter.AddSign(sign);
-//                                signEnchanter.logInfo("Enchanting sign created", Boolean.TRUE);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
         }
 
 }
