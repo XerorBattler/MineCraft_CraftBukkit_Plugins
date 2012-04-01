@@ -1,8 +1,11 @@
 package net.XerorBattler.SignEnchanter;
 
+import com.nijikokun.register.payment.Method;
+import com.nijikokun.register.payment.Methods;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -13,6 +16,7 @@ public class SESign
     private HashMap<Enchantment, Integer> enchants = new HashMap<>();
     private int baseCost;
     private Location location;
+    private final Method bank = Methods.getMethod();
 
     public SESign(int baseCost, Location location)
     {
@@ -29,7 +33,7 @@ public class SESign
         }
     }
     
-    public boolean EnchantItem(Player player)
+    public boolean EnchantItem(Player player, boolean enchantIt)
     {
         if(enchants.size() == 1)
         {
@@ -44,23 +48,37 @@ public class SESign
                 enchantLevel = item.getEnchantmentLevel(enchant);
                 price = calculatePrice(enchantLevel);
             }
-            String enchantName = SEEnchantsOld.getMinecraftName(enchant.getName());
+            String enchantText = SEEnchants.getEnchantTextByMCName(enchant.getName());
             if(enchantLevel >= enchant.getMaxLevel() || enchantLevel >= enchants.get(enchant))
             {
                 String infoString = "possible";
                 if(enchant.getMaxLevel() > enchants.get(enchant))infoString = "sign allowed";
-                player.sendMessage("Enchant " + enchantName + " reached max " + infoString + " level.");
+                player.sendMessage(ChatColor.GOLD + "Enchant " + enchantText + " reached max " + infoString + " level.");
                 return false;
             }
-            player.sendMessage("Price for enchant " + enchantName + " lvl " + (enchantLevel + 1) + ": " + price);
+            if(!player.hasPermission("SignEnchant.use"))
+            {
+                player.sendMessage(ChatColor.RED + "You can't use enchanting sign! You don't have permissions for that.");
+                return false;
+            }
             if(enchant.canEnchantItem(item))
             {
-                item.addEnchantment(enchant, (enchantLevel + 1));
-                player.sendMessage("Item enchanted with " + enchantName + " lvl " + (enchantLevel + 1) + " for " + price);
-                return true;
+                if(enchantIt)
+                {
+                    if(bank.getAccount(player.getName()).hasEnough(price))
+                    {
+                        item.addEnchantment(enchant, (enchantLevel + 1));
+                        bank.getAccount(player.getName()).subtract(price);
+                        player.sendMessage(ChatColor.GREEN + "Item enchanted with " + enchantText + " lvl " + (enchantLevel + 1) + " for " + price);
+                        return true;
+                    }
+                    player.sendMessage(ChatColor.RED + "You don't have enough money! Enchant cost: " + price);
+                    return false;
+                }
+                player.sendMessage(ChatColor.AQUA + "Price for enchant " + enchantText + " lvl " + (enchantLevel + 1) + ": " + price);
+                return false;
             }
-            player.sendMessage("This item can't be enchanted with " + enchantName);
-            
+            player.sendMessage(ChatColor.RED + "This item can't be enchanted with " + enchantText);
         }
         return false;
 //        for(Enchantment ench : item.getEnchantments().keySet())

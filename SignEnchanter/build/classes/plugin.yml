@@ -1,6 +1,6 @@
 name: SignEnchanter
 main: net.XerorBattler.SignEnchanter.SignEnchanter
-version: 0.1-Alpha
+version: 0.2-Alpha
 authors: [XerorBattler]
 description: >
              Simple sign enchanting for iConomy money

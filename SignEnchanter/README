@@ -9,7 +9,7 @@ Alpha2
       * Enchanting system now allows only one enchant type per sign
       * "getName" enum methods recoded
       * Working with signs in memory is now more efficient								      
-			+ Added new enum structure, but it's still not used			     
+			+ Added new enum structure	     
 			+ After destroying sign, system will unregister sign from memory
 Alpha1
       + Basic core

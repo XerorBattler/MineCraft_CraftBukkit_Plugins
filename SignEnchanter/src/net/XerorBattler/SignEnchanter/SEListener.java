@@ -27,7 +27,8 @@ public class SEListener implements Listener {
         @EventHandler(priority = EventPriority.NORMAL)
         public void onBlockUse(final PlayerInteractEvent event)
         {
-            if(!event.getAction().equals(Action.RIGHT_CLICK_BLOCK))return;
+            if(!(event.getAction().equals(Action.RIGHT_CLICK_BLOCK) || event.getAction().equals(Action.LEFT_CLICK_BLOCK)))return;
+            boolean enchantItem = event.getAction().equals(Action.RIGHT_CLICK_BLOCK);
             if(event.getClickedBlock() != null && event.getClickedBlock().getTypeId() == 68)
             {
                 
@@ -35,9 +36,9 @@ public class SEListener implements Listener {
                 if(signEnchanter.getSign(event.getClickedBlock().getLocation()) == null)return;
                 signEnchanter.logInfo("Enchanting sign used by " + event.getPlayer().getName(), true);
                 SESign sign = signEnchanter.getSign(event.getClickedBlock().getLocation());
-                if(sign.EnchantItem(event.getPlayer()))
+                if(sign.EnchantItem(event.getPlayer(), enchantItem))
                 {
-                    event.getPlayer().sendMessage("Your item was enchanted!");
+                    signEnchanter.logInfo(event.getPlayer().getName() + " enchanted his item.", false);
                 }
             }
         }
@@ -54,7 +55,7 @@ public class SEListener implements Listener {
             if(title.equals("debug") && signEnchanter.getSEConfig().getDebugMode())
             {
                 SESign sign = new SESign(100, event.getBlock().getLocation());
-                sign.AddEnchant(SEEnchantsOld.getBukkitName("durability"), 5);
+                sign.AddEnchant(SEEnchants.getBukkitName("durability"), 5);
                 signEnchanter.addSign(sign);
                 signEnchanter.logInfo("Debug sign created.", Boolean.TRUE);
                 event.setLine(0, ChatColor.YELLOW + "SignEnchanter");
@@ -64,9 +65,12 @@ public class SEListener implements Listener {
                 return;
             }
             //DEBUG CODE!
-
-            if(title.length() == 0 || baseCostString.length() == 0 || enchantName.length() == 0 || maxLevelString.length() == 0)return;
-
+            if(!event.getPlayer().hasPermission("SignEnchant.create"))
+            {
+                event.getPlayer().sendMessage(ChatColor.RED + "You can't create enchanting sign! You don't have permissions for that.");
+                return;
+            }
+            if(title.length() == 0 || baseCostString.length() == 0 || enchantName.length() == 0)return;
             if(!title.equalsIgnoreCase(signEnchanter.getSEConfig().getSignTitle()))return;
             
 //            if(!event.getPlayer().hasPermission("SignEnchanter.create"))
@@ -83,8 +87,13 @@ public class SEListener implements Listener {
             try
             {
                 int baseCost = Integer.parseInt(baseCostString);
-                int maxLevel = Integer.parseInt(maxLevelString);
-                enchantName = SEEnchantsOld.getBukkitName(enchantName);
+                int maxLevel;
+                if(maxLevelString.length() == 0)
+                {
+                    maxLevel = Integer.MAX_VALUE;
+                }
+                else maxLevel = Integer.parseInt(maxLevelString);
+                enchantName = SEEnchants.getBukkitName(enchantName);
                 if(enchantName == null)
                 {
                     throw new IllegalArgumentException("Unknown enchant used.");
@@ -93,11 +102,16 @@ public class SEListener implements Listener {
                 {
                     if(baseCost < signEnchanter.getSEConfig().getMinBaseCost())
                     {
-                        throw new IllegalArgumentException("Base cost is lower then minimal possible value. (" 
+                        throw new IllegalArgumentException("Base cost is lower then minimal allowed value. (" 
                                 + signEnchanter.getSEConfig().getMinBaseCost() + ")");
                     }
+                    if(baseCost > signEnchanter.getSEConfig().getMaxBaseCost())
+                    {
+                        throw new IllegalArgumentException("Base cost is highter then maximal allowed value. (" 
+                                + signEnchanter.getSEConfig().getMaxBaseCost() + ")");
+                    }
                     signEnchanter.logInfo("Sign enchant: " + enchantName, Boolean.TRUE);
-                    event.setLine(0, "&1"+signEnchanter.getSEConfig().getSignTitle());
+                    event.setLine(0, signEnchanter.getSEConfig().getSignTitle());
                     event.setLine(3, "LB:info RB:buy");
                     signEnchanter.logInfo("Enchanting sign created.", Boolean.TRUE);
                     SESign sign = new SESign(baseCost, event.getBlock().getLocation());
